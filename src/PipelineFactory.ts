@@ -4,7 +4,7 @@ export class PipelineFactory<T, O> implements IPipeline<T, O>, IUnitPipeline<T, 
 
   stages: Stage<any, any>[];
   history: O[] = [];
-  private readonly maxHistorySize;
+  private readonly maxHistorySize: number;
   constructor(stages: Stage<any, any>[], maxHistorySize = 10) {
     this.stages = stages;
     this.maxHistorySize = maxHistorySize;
