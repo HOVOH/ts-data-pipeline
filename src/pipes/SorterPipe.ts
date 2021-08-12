@@ -1,11 +1,15 @@
-import {IBatchPipe} from "../IPipe";
-import ISorter from "./ISorter";
+import { SimplePipe } from "./SimplePipe";
 
-class SorterPipe<T> implements IBatchPipe<T, T>{
+export interface ISorter<T> {
+    (e0:T, e1:T):number;
+}
+
+class SorterPipe<T> extends SimplePipe<T, T>{
 
     sorter: ISorter<T>;
 
     constructor(sorter: ISorter<T>) {
+        super();
         this.sorter = sorter;
     }
 

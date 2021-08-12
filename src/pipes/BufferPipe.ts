@@ -1,6 +1,6 @@
-import { IBatchPipe } from "../IPipe";
+import { IPipe } from "../IPipe";
 
-export default abstract class IntervalPipe<T, O> implements IBatchPipe<T, O>{
+export default abstract class BufferPipe<T, O> implements IPipe<T, O>{
 
   queue: T[][] = [];
   resolvers: ((o: O[]) => void)[] = []
@@ -42,7 +42,7 @@ export default abstract class IntervalPipe<T, O> implements IBatchPipe<T, O>{
 
   abstract run(queued: T[]): Promise<O[]>;
 
-  process(elements: T[]): Promise<O[]> {
+  processBatch(elements: T[]): Promise<O[]> {
     this.queue.push(elements)
     return new Promise<O[]>((resolve, reject) => {
       this.resolvers.push(resolve)

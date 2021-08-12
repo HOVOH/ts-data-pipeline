@@ -1,56 +1,52 @@
-import {IBatchPipe, IUnitPipe} from "./IPipe";
+import { SimplePipe } from "./pipes/SimplePipe";
+import { HealthRecord } from "./HealthRecord";
 
 export interface IPipeline<T, O> {
     process(elements: T[]): Promise<O[]>;
 }
 
-export interface IUnitPipeline<T, O> {
-    processIndex(elements: T[], index: number): Promise<O[]>;
+export interface IUnitPipeline<T,O>{
     processUnit(element: T): Promise<O>;
 }
 
-export class BatchPipeline<T, O> implements IPipeline<T, O>{
-    pipes: IBatchPipe<T|O, T|O>[] = [];
+export interface Stage<T, O> {
+    name: string,
+    pipe: SimplePipe<T, O>
+}
 
-    constructor(pipes: IBatchPipe<T|O, T|O>[]) {
-        this.pipes = pipes;
-    }
-
-    append(pipe: IBatchPipe<T|O, T|O>){
-        this.pipes.push(pipe);
+export class Pipeline<T, O> implements IPipeline<T, O>{
+    stages: Stage<any, any>[];
+    healthRecord: HealthRecord;
+    history: O[];
+    constructor(stages: Stage<any, any>[], history: O[] = []) {
+        this.stages = stages;
+        this.history = history;
+        this.healthRecord = new HealthRecord();
     }
 
     async process(elements: T[]): Promise<O[]> {
         let product: (T|O)[] = elements;
-        for (const pipe of this.pipes) {
-            product = await pipe.process(product);
+        for (const stage of this.stages) {
+            const batchSize = product.length;
+            product = await stage.pipe.processBatch(product, this.history);
+            this.processHealthRecord(stage, batchSize);
         }
         return <O[]> product;
+    }
+
+    private processHealthRecord(stage: Stage<any, any>, batchSize: number){
+        this.healthRecord.append(
+          stage.name,
+          stage.pipe.errors.map(iError => iError.error),
+          batchSize
+        );
     }
 }
 
-export class UnitPipeline<T, O> implements IUnitPipeline<T, O>{
-
-    pipes: IUnitPipe<T|O, T|O>[] = [];
-
-    constructor(pipes: IUnitPipe<T|O, T|O>[]) {
-        this.pipes = pipes;
-    }
-
-    append(pipe: IUnitPipe<T|O, T|O>){
-        this.pipes.push(pipe);
-    }
-
-    async processIndex(elements: T[], index: number): Promise<O[]>{
-        let product: (T|O)[] = elements;
-        for (const pipe of this.pipes) {
-            product = await pipe.processUnit(product, index);
-        }
-        return <O[]> product;
-    }
+export class UnitPipeline<T, O> extends Pipeline<T, O> implements IUnitPipeline<T, O>{
 
     async processUnit(element: T): Promise<O>{
-      const product = await this.processIndex([element], 0);
+      const product = await this.process([element]);
       return product[0];
     }
 }
