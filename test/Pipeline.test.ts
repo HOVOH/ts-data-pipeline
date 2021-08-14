@@ -1,4 +1,4 @@
-import { Pipeline } from "../src";
+import { Pipeline, UnitPipeline } from "../src";
 import MapPipe from "../src/pipes/MapPipe";
 import { SimplePipe } from "../src/pipes/SimplePipe";
 import DataError from "../src/errors/DataError";
@@ -63,5 +63,30 @@ describe("Pipeline", () => {
     expect(hr.stagesHealth[1].name).toBe("stage_2");
     expect(hr.stagesHealth[1].batchSize).toBe(2);
     expect(hr.stagesHealth[1].errors.length).toBe(2);
+  })
+})
+
+describe("UnitPipeline", () => {
+  it("Should process a single element", async () => {
+    const pipeline = new UnitPipeline<number, number>([
+      {
+        name: "stage_1",
+        pipe: new MapPipe((e: number) => e*2)
+      },
+    ])
+    expect(await pipeline.processUnit(1)).toEqual(2);
+  })
+
+  it("Should return null if CriticalDataError occurs", async () => {
+    const pipeline = new UnitPipeline<number, number>([
+      {
+        name: "stage_1",
+        pipe: new MapPipe((data, flagError) => {
+          flagError(new CriticalDataError("critical", data));
+          return data
+        })
+      },
+    ])
+    expect(await pipeline.processUnit(1)).toBeNull();
   })
 })

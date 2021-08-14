@@ -6,7 +6,7 @@ export interface IPipeline<T, O> {
 }
 
 export interface IUnitPipeline<T,O>{
-    processUnit(element: T): Promise<O>;
+    processUnit(element: T): Promise<O | null>;
 }
 
 export interface Stage<T, O> {
@@ -45,8 +45,8 @@ export class Pipeline<T, O> implements IPipeline<T, O>{
 
 export class UnitPipeline<T, O> extends Pipeline<T, O> implements IUnitPipeline<T, O>{
 
-    async processUnit(element: T): Promise<O>{
+    async processUnit(element: T): Promise<O | null>{
       const product = await this.process([element]);
-      return product[0];
+      return product[0]??null;
     }
 }

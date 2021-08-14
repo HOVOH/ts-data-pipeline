@@ -29,10 +29,12 @@ export class PipelineFactory<T, O> implements IPipeline<T, O>, IUnitPipeline<T, 
     return processed;
   }
 
-  async processUnit(element: T): Promise<O> {
+  async processUnit(element: T): Promise<O | null> {
     const pipeline = new UnitPipeline(this.stages, this.history);
     const processed = await pipeline.processUnit(element);
-    this.fillHistory([processed]);
+    if (processed) {
+      this.fillHistory([processed]);
+    }
     return processed;
   }
 

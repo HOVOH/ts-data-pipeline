@@ -10,6 +10,8 @@ import TransformerPipe from "./pipes/TransformerPipe";
 import MapPipe from "./pipes/MapPipe";
 import BufferPipe from "./pipes/BufferPipe";
 import { PipelineFactory } from "./PipelineFactory"
+import {SimplePipe} from "./pipes/SimplePipe";
+
 export {
   CriticalDataError,
   DataError,
@@ -27,5 +29,6 @@ export {
   TransformerPipe,
   MapPipe,
   BufferPipe,
-  PipelineFactory
+  PipelineFactory,
+  SimplePipe
 }
