@@ -9,8 +9,8 @@ export abstract class SimplePipe<T, O> implements IPipe<T, O>{
 
   async processBatch(elements: T[], history: O[]): Promise<O[]> {
     try{
-      const processed = await this.process(elements, history);
-      this.removeCriticalDataErrors(processed);
+      let processed = await this.process(elements, history);
+      processed = this.removeCriticalDataErrors(processed);
       return processed;
     } catch (error){
       throw new PipeError(error.message);
@@ -26,12 +26,16 @@ export abstract class SimplePipe<T, O> implements IPipe<T, O>{
     })
   }
 
-  protected removeCriticalDataErrors(elements: O[]){
-    for (let pipeError of this.errors){
-      const {index, error} = pipeError;
-      if (error.dataError && error.critical){
-        elements.splice(index, 1);
+  protected removeCriticalDataErrors(elements: O[]): O[]{
+    const badDataIndex = this.errors
+      .filter(error => error.error.dataError && error.error.critical)
+      .map(error => error.index);
+    const goodData: O[] = []
+    elements.forEach((element, index) => {
+      if (!badDataIndex.includes(index)){
+        goodData.push(element)
       }
-    }
+    })
+    return goodData;
   }
 }

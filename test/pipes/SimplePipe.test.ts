@@ -10,20 +10,26 @@ class TestSimplePipe extends SimplePipe<number, number> {
 
 class DataErrorSimplePipe extends SimplePipe<number, number>{
   protected process(elements: number[]): Promise<number[]> {
-    this.addError(0, new DataError("error", "0"));
-    this.addError(1, new CriticalDataError("critical error", "1"))
-    return Promise.resolve(elements);
+    const ns = elements.map((n, i) => {
+      if (n < 5){
+        this.addError(i, new DataError("error", "0"));
+      } else if (n < 10){
+        this.addError(i, new CriticalDataError("critical error", "1"))
+      }
+      return n*2
+    })
+    return Promise.resolve(ns);
   }
 }
 
 describe("SimplePipe", () => {
   it("Should process data", async () => {
     const pipe = new TestSimplePipe();
-    expect(await pipe.processBatch([1,2,3], [])).toEqual([2,4,6]);
+    expect(await pipe.processBatch([10,20,30], [])).toEqual([20,40,60]);
   })
 
   it("Should remove data with CriticalDataError", async () => {
     const pipe = new DataErrorSimplePipe();
-    expect(await pipe.processBatch([1,2,3], [])).toEqual([1,3])
+    expect(await pipe.processBatch([1,5,10,7,3,8], [])).toEqual([2,20,6])
   })
 })
