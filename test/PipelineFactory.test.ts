@@ -1,5 +1,5 @@
 import { PipelineFactory } from "../src";
-import { SimplePipe } from "../src/pipes/SimplePipe";
+import { SimplePipe } from "../src";
 
 class TestPipe extends SimplePipe<number, number>{
   protected process(elements: number[], history: number[]): Promise<number[]> {
@@ -14,7 +14,8 @@ describe("Pipeline Factory", () => {
       pipe: new TestPipe()
     }], 10);
     pipelineFact.fillHistory([2]);
-    expect(await pipelineFact.process([1,2,3])).toEqual([2,4,6]);
+    const {data} = await pipelineFact.process([1,2,3]);
+    expect(data).toEqual([2,4,6]);
     expect(pipelineFact.history).toEqual([2,4,6,2]);
     expect(pipelineFact.history.length).toEqual(4);
   })
@@ -25,7 +26,8 @@ describe("Pipeline Factory", () => {
       pipe: new TestPipe()
     }], 2);
     pipelineFact.fillHistory([2]);
-    expect(await pipelineFact.process([1,2,3])).toEqual([2,4,6]);
+    const {data} = await pipelineFact.process([1,2,3]);
+    expect(data).toEqual([2,4,6]);
     expect(pipelineFact.history).toEqual([2,4]);
     expect(pipelineFact.history.length).toEqual(2);
   })
@@ -36,7 +38,8 @@ describe("Pipeline Factory", () => {
       pipe: new TestPipe()
     }], 3);
     pipelineFact.fillHistory([2, 1]);
-    expect(await pipelineFact.process([1,2,3])).toEqual([2,4,6]);
+    const {data} = await pipelineFact.process([1,2,3]);
+    expect(data).toEqual([2, 4, 6]);
     expect(pipelineFact.history).toEqual([2,4,6]);
     expect(pipelineFact.history.length).toEqual(3);
   })
@@ -47,8 +50,9 @@ describe("Pipeline Factory", () => {
       pipe: new TestPipe()
     }], 3);
     pipelineFact.fillHistory([2, 1]);
-    expect(await pipelineFact.processUnit(5)).toEqual(10);
-    expect(pipelineFact.history).toEqual([10,2,1]);
+    const {data} = await pipelineFact.processUnit(5);
+    expect(data).toEqual(10);
+    expect(pipelineFact.history).toEqual([10, 2, 1]);
     expect(pipelineFact.history.length).toEqual(3);
-  })
+  });
 })

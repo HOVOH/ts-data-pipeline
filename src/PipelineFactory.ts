@@ -1,6 +1,7 @@
-import { IPipeline, IUnitPipeline, Pipeline, Stage, UnitPipeline } from "./Pipeline";
+import { Pipeline, Stage, UnitPipeline } from "./Pipeline";
+import { HealthRecord } from "./HealthRecord";
 
-export class PipelineFactory<T, O> implements IPipeline<T, O>, IUnitPipeline<T, O>{
+export class PipelineFactory<T, O>{
 
   stages: Stage<any, any>[];
   history: O[] = [];
@@ -22,20 +23,20 @@ export class PipelineFactory<T, O> implements IPipeline<T, O>, IUnitPipeline<T, 
     this.history.unshift(...history)
   }
 
-  async process(elements: T[]): Promise<O[]> {
+  async process(elements: T[]): Promise<{ data: O[], health: HealthRecord }> {
     const pipeline = new Pipeline(this.stages, [...this.history]);
     const processed = await pipeline.process(elements);
     this.fillHistory(processed);
-    return processed;
+    return { data: processed, health: pipeline.healthRecord };
   }
 
-  async processUnit(element: T): Promise<O | null> {
+  async processUnit(element: T): Promise<{ data: O|null, health: HealthRecord }> {
     const pipeline = new UnitPipeline(this.stages, this.history);
     const processed = await pipeline.processUnit(element);
     if (processed) {
       this.fillHistory([processed]);
     }
-    return processed;
+    return { data: processed, health: pipeline.healthRecord };
   }
 
 
