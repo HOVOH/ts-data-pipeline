@@ -5,7 +5,11 @@ import CriticalDataError from "../errors/CriticalDataError";
 
 export abstract class SimplePipe<T, O> implements IPipe<T, O>{
 
-  errors: ({ index: number, error: DataError|CriticalDataError })[] = [];
+  errors: ({ index: number, error: DataError|CriticalDataError })[];
+
+  constructor() {
+    this.errors = []
+  }
 
   async processBatch(elements: T[], history: O[]): Promise<O[]> {
     try{

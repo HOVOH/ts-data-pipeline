@@ -18,6 +18,7 @@ export class Pipeline<T, O> implements IPipeline<T, O>{
     stages: Stage<any, any>[];
     healthRecord: HealthRecord;
     history: O[];
+
     constructor(stages: Stage<any, any>[], history: O[] = []) {
         this.stages = stages;
         this.history = history;
