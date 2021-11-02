@@ -1,4 +1,4 @@
-import { CriticalDataError, PipelineFactory, TransformerPipe } from "../src";
+import { CriticalDataError, MapPipe, PipelineFactory, TransformerPipe } from "../src";
 import { SimplePipe } from "../src";
 
 class TestPipe extends SimplePipe<number, number>{
